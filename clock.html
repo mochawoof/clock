@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <title>Clock</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="normalize.css">
+    <link rel="stylesheet" href="skeleton.css">
 </head>
 <style>
     :root, body {
@@ -25,29 +27,35 @@
     }
     #canvas {
         background: red;
+        border: 1px solid #fff;
         width: 100%;
         max-width: 800px;
         max-height: 800px;
         aspect-ratio: 2/1;
     }
-    select {
-        outline: none;
+    button {
+        font-weight: bolder;
+        height: 30px;
         border: 1px solid #fff;
-        background: #fff;
-        color: #000;
-        font-family: inherit;
+        background: #000;
+        color: #fff;
+    }
+    button:hover {
+        background: #444;
+        cursor: pointer;
+    }
+    #themes {
+        
     }
 </style>
 <body>
     <canvas id="canvas"></canvas>
-    <p>
-        Theme: 
-        <select>
-            <option>Digital</option>
-            <option>Analog</option>
-            <option>b</option>
-            <option>b</option>
-        </select>
+    <p id="controls">
+        <button>Change Theme</button>
+    </p>
+    <p id="themes">
+        <button>Digital</button>
+        <button>Analog</button>
     </p>
 </body>
 <script>
