@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>Clock</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<style>
+    :root, body {
+        background: #000;
+        color: #fff;
+    }
+    body {
+        margin: 8px;
+        overflow-y: hidden;
+        height: 100vh;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+
+        font-family: sans-serif;
+    }
+    #canvas {
+        background: red;
+        width: 100%;
+        max-width: 800px;
+        max-height: 800px;
+        aspect-ratio: 2/1;
+    }
+    select {
+        outline: none;
+        border: 1px solid #fff;
+        background: #fff;
+        color: #000;
+        font-family: inherit;
+    }
+</style>
+<body>
+    <canvas id="canvas"></canvas>
+    <p>
+        Theme: 
+        <select>
+            <option>Digital</option>
+            <option>Analog</option>
+            <option>b</option>
+            <option>b</option>
+        </select>
+    </p>
+</body>
+<script>
+
+</script>
+</html>
