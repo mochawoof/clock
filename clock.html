@@ -1,18 +1,26 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8" />
     <title>Clock</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <style>
-    :root, body {
+    :root {
         --bg: #000;
         --fg: #fff;
         --accent: #444;
+
+        --font: sans-serif;
+    }
+
+    :root,
+    body {
         background: var(--bg);
         color: var(--fg)
     }
+
     body {
         margin: 8px;
         overflow-x: hidden;
@@ -24,8 +32,9 @@
         align-content: center;
         justify-content: center;
 
-        font-family: sans-serif;
+        font-family: var(--font);
     }
+
     #canvas {
         border: 1px solid var(--fg);
         width: 100%;
@@ -33,23 +42,22 @@
         max-height: 800px;
         aspect-ratio: 2/1;
     }
+
     button {
         font-weight: bolder;
         height: 30px;
         border: 1px solid var(--fg);
         background: var(--bg);
         color: var(--fg);
+        font-family: inherit;
     }
+
     button:hover {
         background: var(--accent);
         cursor: pointer;
     }
-    .popup {
-        border: 1px solid var(--fg);
-        margin: 0;
-    }
 
-    #themes {
+    #themes_popup {
         overflow-x: auto;
         overflow-y: hidden;
         max-width: 800px;
@@ -58,6 +66,8 @@
         padding: 0;
         padding-right: 8px;
         white-space: nowrap;
+        border: 1px solid var(--fg);
+        margin: 0;
     }
 
     .theme_canvas {
@@ -75,22 +85,101 @@
         cursor: pointer;
     }
 </style>
+
 <body>
     <canvas id="canvas" width="800" height="400"></canvas>
     <p id="controls">
-        <button onclick="toggle_popup('#themes')">Change Theme</button>
+        <button onclick="toggle_themes_popup()">Change Theme</button>
     </p>
-    <p id="themes" class="popup" style="display: none;">
-        <canvas class="theme_canvas"></canvas>
-    </p>
+    <p id="themes_popup" style="display: none;"></p>
 </body>
 <script>
-    function toggle_popup(id) {
-        if (document.querySelector(id).style.display == "none") {
-            document.querySelector(id).style.display = "";
+    let canvas = document.querySelector("#canvas");
+    let ctx = canvas.getContext("2d");
+
+    let themes_popup = document.querySelector("#themes_popup");
+
+    let themes = [
+        {
+            name: "Digital",
+            colors: {
+                bg: "#000",
+                fg: "#fff",
+                accent: "#444",
+
+                font: "sans-serif"
+            },
+            draw: (canvas, ctx) => {
+                ctx.fillStyle = "blue";
+                ctx.fillRect(0, 0, 100, 100);
+            }
+        },
+        {
+            name: "Analog",
+            colors: {
+                bg: "#000",
+                fg: "#fff",
+                accent: "#444",
+
+                font: "sans-serif"
+            },
+            draw: (canvas, ctx) => {
+                ctx.fillStyle = "red";
+                ctx.fillRect(0, 0, 100, 100);
+            }
+        }
+    ];
+
+    let current_theme;
+
+    function toggle_themes_popup() {
+        if (themes_popup.style.display == "none") {
+            themes_popup.style.display = "";
+            refresh_themes_popup();
         } else {
-            document.querySelector(id).style.display = "none";
+            themes_popup.style.display = "none";
         }
     }
+
+    function refresh_themes_popup() {
+        themes_popup.innerHTML = "";
+        themes.forEach((theme) => {
+            let theme_canvas = document.createElement("canvas");
+            theme_canvas.classList.add("theme_canvas");
+            theme_canvas.dataset.name = theme.name;
+            theme_canvas.title = theme.name;
+
+            theme_canvas.onclick = () => {
+                switch_theme(theme.name);
+            }
+
+            theme.draw(theme_canvas, theme_canvas.getContext("2d"));
+
+            themes_popup.appendChild(theme_canvas);
+        });
+    }
+
+    function switch_theme(theme_name) {
+        themes.forEach((theme) => {
+            if (theme.name == theme_name) {
+                current_theme = theme;
+
+                let root = document.querySelector(":root");
+                Object.keys(theme.colors).forEach((color) => {
+                    let value = theme.colors[color];
+                    root.style.setProperty("--" + color, value);
+                });
+            }
+        });
+    }
+
+    function draw_clock() {
+        current_theme.draw(canvas, ctx);
+        requestAnimationFrame(draw_clock);
+    }
+
+    switch_theme(themes[0].name);
+    draw_clock();
 </script>
+
 </html>
