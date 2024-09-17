@@ -102,6 +102,13 @@
 
     let themes_popup = document.querySelector("#themes_popup");
 
+    function percent_width(canvas_src, percent) {
+        return canvas_src.width * (percent / 100);
+    }
+    function percent_height(canvas_src, percent) {
+        return canvas_src.height * (percent / 100);
+    }
+
     let themes = [
         {
             name: "Digital",
@@ -113,8 +120,16 @@
                 font: "sans-serif"
             },
             draw: (canvas, ctx) => {
-                ctx.fillStyle = "blue";
-                ctx.fillRect(0, 0, 100, 100);
+                let sin = Math.sin(Math.floor(Date.now() / 5000));
+                let hex = sin.toString(16);
+                ctx.fillStyle = "#" + hex.substring(hex.length - 6);
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = "#000";
+                for (let i=0; i < 100; i++) {
+                    let time_sin = Math.sin(Math.floor(Date.now() + i / 5000));
+                    ctx.fillRect(percent_width(canvas, i), percent_height(canvas, 50 * time_sin), percent_width(canvas, 1), percent_width(canvas, 1));
+                }
             }
         },
         {
@@ -156,9 +171,16 @@
                 switch_theme(theme.name);
             }
 
-            theme.draw(theme_canvas, theme_canvas.getContext("2d"));
+            let theme_canvas_ctx = theme_canvas.getContext("2d");
+            function theme_canvas_draw() {
+                theme.draw(theme_canvas, theme_canvas_ctx);
+                if (themes_popup.style.display != "none") {
+                    requestAnimationFrame(theme_canvas_draw);
+                }
+            }
 
             themes_popup.appendChild(theme_canvas);
+            theme_canvas_draw();
         });
     }
 
@@ -172,13 +194,31 @@
                     let value = theme.colors[color];
                     root.style.setProperty("--" + color, value);
                 });
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
             }
         });
     }
 
+    function set_favicon(canvas_src) {
+        let temp_canvas = document.createElement("canvas");
+        temp_canvas.width = 16;
+        temp_canvas.height = 16;
+        let img = new Image();
+        img.src = canvas_src.toDataURL();
+
+        let temp_ctx = temp_canvas.getContext("2d");
+        temp_ctx.drawImage(img, 0, 0, temp_canvas.width, temp_canvas.height);
+
+        favicon.href = temp_canvas.toDataURL();
+    }
+
+    let favicon_draw_interval = 1000;
+    let last_favicon_draw = 0;
     function draw_clock() {
         current_theme.draw(canvas, ctx);
-        favicon.href = canvas.toDataURL();
+        if (Date.now() > last_favicon_draw + 1000) {
+            set_favicon(canvas);
+        }
         requestAnimationFrame(draw_clock);
     }
 
