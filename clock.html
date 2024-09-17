@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <title>Clock</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link id="favicon" rel="icon" href="">
 </head>
 <style>
     :root {
@@ -94,6 +95,8 @@
     <p id="themes_popup" style="display: none;"></p>
 </body>
 <script>
+    let favicon = document.querySelector("#favicon");
+
     let canvas = document.querySelector("#canvas");
     let ctx = canvas.getContext("2d");
 
@@ -175,6 +178,7 @@
 
     function draw_clock() {
         current_theme.draw(canvas, ctx);
+        favicon.href = canvas.toDataURL();
         requestAnimationFrame(draw_clock);
     }
 
