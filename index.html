@@ -179,6 +179,28 @@
 
                 return time;
             }
+        },
+        {
+            id: "default_analog",
+            name: "Analog",
+            colors: DEFAULT_THEME_COLORS,
+            freeze_preview: false,
+            draw: (dest_canvas, dest_ctx) => {
+                dest_ctx.fillStyle = "#000";
+                dest_ctx.fillRect(0, 0, dest_canvas.width, dest_canvas.height);
+
+                let center_x = canvas.width / 2;
+                let center_y = canvas.height / 2;
+
+                let date = new Date();
+
+                dest_ctx.fillStyle = "#fff";
+                dest_ctx.beginPath();
+                dest_ctx.arc(center_x, center_y, (dest_canvas.height / 2 - 8), 0, 2 * Math.PI);
+                dest_ctx.fill();
+
+                return TIME_FORMAT_12H(date);
+            }
         }
     ];
 
