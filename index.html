@@ -316,7 +316,7 @@
     function start_title_interval() {
         setInterval(() => {
             document.title = current_theme.time_format(new Date());
-        }, 500);
+        }, 1000);
     }
 
     let current_theme = get_theme(localStorage.getItem("current_theme"));
