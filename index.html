@@ -149,7 +149,11 @@
     }
 
     let TIME_FORMAT_12H = (date) => {
-        return pad(date.getHours() % 12, "0", 2) + ":" + pad(date.getMinutes(), "0", 2) + " " + ((date.getHours() > 12) ? "PM" : "AM");
+        let hour = date.getHours() % 12;
+        if (hour == 0) {
+            hour = 12;
+        }
+        return pad(hour, "0", 2) + ":" + pad(date.getMinutes(), "0", 2) + " " + ((date.getHours() > 11) ? "PM" : "AM");
     }
 
     let themes = [
