@@ -8,20 +8,16 @@
 </head>
 <style>
     @font-face {
-        font-family: Roboto;
-        src: url(fonts/Roboto-Regular.ttf);
-    }
-    @font-face {
         font-family: Roboto Mono;
         src: url(fonts/RobotoMono-VariableFont_wght.ttf)
     }
-    
+
     :root {
         --bg: #000;
         --fg: #fff;
         --accent: #444;
 
-        --font: Roboto, sans-serif;
+        --font: Roboto Mono, sans-serif;
     }
 
     :root,
@@ -47,7 +43,6 @@
     }
 
     #canvas {
-        border: 1px solid var(--fg);
         width: 100%;
         max-height: 800px;
         aspect-ratio: 2/1;
@@ -133,12 +128,20 @@
         return ((linear_scale > 0.5) ? 1 - linear_scale : linear_scale);
     }
 
-    function pad_zeros(n, length) {
+    function pad(n, x, length) {
         let str_n = n.toString();
         for (let i = str_n.length; i < length; i++) {
-            str_n = "0" + str_n;
+            str_n = x + str_n;
         }
         return str_n;
+    }
+
+    function draw_border(dest_canvas, dest_ctx, color) {
+        dest_ctx.fillStyle = color;
+        dest_ctx.fillRect(0, 0, dest_canvas.width, 1);
+        dest_ctx.fillRect(dest_canvas.width - 1, 0, 1, dest_canvas.height);
+        dest_ctx.fillRect(0, dest_canvas.height - 1, dest_canvas.width, 1);
+        dest_ctx.fillRect(0, 0, 1, dest_canvas.height);
     }
 
     let DEFAULT_THEME_COLORS = {
@@ -146,15 +149,15 @@
         fg: "#fff",
         accent: "#444",
 
-        font: "Roboto, sans-serif"
+        font: "Roboto Mono, sans-serif"
     };
 
     let TIME_FORMAT_MILITARY = (date) => {
-        return pad_zeros(date.getHours(), 2) + ":" + pad_zeros(date.getMinutes(), 2);
+        return pad(date.getHours(), "0", 2) + ":" + pad(date.getMinutes(), "0", 2);
     }
 
     let TIME_FORMAT_12H = (date) => {
-        return (date.getHours() % 12) + ":" + pad_zeros(date.getMinutes(), 2) + " " + ((date.getHours() > 12) ? "PM" : "AM");
+        return pad(date.getHours() % 12, "0", 2) + ":" + pad(date.getMinutes(), "0", 2) + " " + ((date.getHours() > 12) ? "PM" : "AM");
     }
 
     let themes = [
@@ -169,13 +172,13 @@
 
                 dest_ctx.fillStyle = "#fff";
 
-                dest_ctx.font = "160px Roboto Mono, monospace";
+                dest_ctx.font = "140px Roboto Mono, monospace";
 
                 let date = new Date();
                 let time = TIME_FORMAT_12H(new Date());
                 let blinky_time = time.replace(":", ((get_linear_scale(2000) > 0.5) ? ":" : " "));
 
-                dest_ctx.fillText(blinky_time, 60, 267, canvas.width);
+                dest_ctx.fillText(blinky_time, 55, 260, canvas.width);
 
                 return time;
             }
@@ -191,13 +194,38 @@
 
                 let center_x = canvas.width / 2;
                 let center_y = canvas.height / 2;
-
-                let date = new Date();
+                let radius = (dest_canvas.height / 2) - 8;
 
                 dest_ctx.fillStyle = "#fff";
                 dest_ctx.beginPath();
-                dest_ctx.arc(center_x, center_y, (dest_canvas.height / 2 - 8), 0, 2 * Math.PI);
+                dest_ctx.arc(center_x, center_y, radius, 0, 2 * Math.PI);
                 dest_ctx.fill();
+
+                function draw_hand(degree, width, length, color) {
+                    dest_ctx.strokeStyle = color;
+                    dest_ctx.fillStyle = color;
+                    dest_ctx.lineWidth = width;
+
+                    dest_ctx.beginPath();
+                    dest_ctx.moveTo(center_x, center_y);
+
+                    let radians = (-degree - 180) * Math.PI / 180;
+
+                    let end_x = (Math.sin(radians) * (radius - (radius - length))) + center_x;
+                    let end_y = (Math.cos(radians) * (radius - (radius - length))) + center_y;
+                    dest_ctx.lineTo(end_x, end_y);
+                    dest_ctx.stroke();
+                    
+                    dest_ctx.beginPath();
+                    dest_ctx.moveTo(center_x, center_y);
+                    dest_ctx.arc(center_x, center_y, width / 2, 0, 2 * Math.PI);
+                    dest_ctx.fill();
+                }
+
+                let date = new Date();
+                let date_ms = date.getTime() - new Date(date.toLocaleDateString()).getTime();
+                let date_hours = (date_ms / 1000 / 60 / 60);
+                draw_hand((360 / 12) * date_hours, 10, 150, "#000");
 
                 return TIME_FORMAT_12H(date);
             }
