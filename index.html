@@ -136,14 +136,6 @@
         return str_n;
     }
 
-    function draw_border(dest_canvas, dest_ctx, color) {
-        dest_ctx.fillStyle = color;
-        dest_ctx.fillRect(0, 0, dest_canvas.width, 1);
-        dest_ctx.fillRect(dest_canvas.width - 1, 0, 1, dest_canvas.height);
-        dest_ctx.fillRect(0, dest_canvas.height - 1, dest_canvas.width, 1);
-        dest_ctx.fillRect(0, 0, 1, dest_canvas.height);
-    }
-
     let DEFAULT_THEME_COLORS = {
         bg: "#000",
         fg: "#fff",
@@ -201,6 +193,28 @@
                 dest_ctx.arc(center_x, center_y, radius, 0, 2 * Math.PI);
                 dest_ctx.fill();
 
+                dest_ctx.strokeStyle = "#000";
+                dest_ctx.lineWidth = 5;
+
+                for (let i=0; i < 12; i++) {
+                    dest_ctx.beginPath();
+                    dest_ctx.moveTo(center_x, center_y);
+
+                    let degree = i * (360 / 12);
+                    let radians = (-degree - 180) * Math.PI / 180;
+
+                    let end_x = (Math.sin(radians) * radius) + center_x;
+                    let end_y = (Math.cos(radians) * radius) + center_y;
+                    
+                    dest_ctx.lineTo(end_x, end_y);
+                    dest_ctx.stroke();
+                }
+
+                dest_ctx.fillStyle = "#fff";
+                dest_ctx.beginPath();
+                dest_ctx.arc(center_x, center_y, radius - 20, 0, 2 * Math.PI);
+                dest_ctx.fill();
+
                 function draw_hand(degree, width, length, color) {
                     dest_ctx.strokeStyle = color;
                     dest_ctx.fillStyle = color;
@@ -218,14 +232,18 @@
                     
                     dest_ctx.beginPath();
                     dest_ctx.moveTo(center_x, center_y);
-                    dest_ctx.arc(center_x, center_y, width / 2, 0, 2 * Math.PI);
+                    dest_ctx.arc(center_x, center_y, width, 0, 2 * Math.PI);
                     dest_ctx.fill();
                 }
 
                 let date = new Date();
                 let date_ms = date.getTime() - new Date(date.toLocaleDateString()).getTime();
                 let date_hours = (date_ms / 1000 / 60 / 60);
-                draw_hand((360 / 12) * date_hours, 10, 150, "#000");
+                let date_minutes = (date_ms / 1000 / 60) - (Math.floor(date_hours) * 60);
+                let date_seconds = (date_ms / 1000) - (Math.floor(date_minutes) * 60);
+                draw_hand((360 / 12) * date_hours, 10, 120, "#000");
+                draw_hand((360 / 60) * date_minutes, 5, 160, "#000");
+                draw_hand((360 / 60) * date_seconds, 5, 160, "#f00");
 
                 return TIME_FORMAT_12H(date);
             }
@@ -256,6 +274,7 @@
 
             theme_canvas.onclick = () => {
                 switch_theme(theme.id);
+                toggle_themes_popup();
             }
 
             let theme_canvas_ctx = theme_canvas.getContext("2d");
@@ -292,8 +311,9 @@
     }
 
     function draw_clock() {
-        document.title = current_theme.draw(canvas, ctx);;
-        requestAnimationFrame(draw_clock);
+        setInterval(() => {
+            document.title = current_theme.draw(canvas, ctx);
+        }, 1000 / 60);
     }
 
     let current_theme = get_theme(localStorage.getItem("current_theme"));
